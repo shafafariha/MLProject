@@ -1,6 +1,6 @@
 streamlit
 opencv-python
-mediapipe
+mediapipe>=0.10.7
 numpy
 pandas
 joblib
