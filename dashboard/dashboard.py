@@ -5,12 +5,10 @@ import mediapipe as mp
 import numpy as np
 import joblib
 import platform
-
 import warnings
+
 warnings.filterwarnings("ignore")
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 os.environ['OPENCV_VIDEOIO_PRIORITY_MSMF'] = '0'
 
 mp_hands = mp.solutions.hands
@@ -18,7 +16,6 @@ mp_drawing = mp.solutions.drawing_utils
 
 
 def is_cloud_environment():
-    """Check if running in Streamlit Cloud"""
     return os.getenv('STREAMLIT_RUNTIME_ENVIRONMENT') == 'cloud'
 
 
@@ -40,11 +37,9 @@ def extract_landmarks(image, min_detection_confidence=0.5, min_tracking_confiden
 
 
 def initialize_camera():
-    """Initialize camera with better error handling"""
     try:
         if is_cloud_environment():
-            st.warning(
-                "⚠️ Running in cloud environment. Camera access might be limited.")
+            st.warning("⚠️ Running in cloud environment. Camera access might be limited.")
 
         for index in [0, 1]:
             cap = cv2.VideoCapture(index)
@@ -54,11 +49,11 @@ def initialize_camera():
 
         st.error("""
         🎥 Camera not available. 
-        
+
         If you're running this on Streamlit Cloud:
         - Camera access is limited in cloud environments
         - For full functionality, please run the app locally
-        
+
         If you're running locally:
         - Make sure your camera is connected and not in use by another application
         - Try granting camera permissions to your browser
@@ -68,7 +63,7 @@ def initialize_camera():
     except Exception as e:
         st.error(f"""
         ❌ Error initializing camera: {str(e)}
-        
+
         System Info:
         - OS: {platform.system()}
         - Python: {platform.python_version()}
@@ -85,15 +80,19 @@ def main():
         st.session_state.camera_initialized = False
 
     if is_cloud_environment():
-        st.warning("""
-        ⚠️ Note: You're running this app in Streamlit Cloud.
-        Some features like camera access might be limited.
-        For full functionality, consider running the app locally.
-        """)
+        st.warning("⚠️ You're running this app in Streamlit Cloud. Some features like camera access might be limited.")
 
-    st.sidebar.header('Choose a Model (My Future Work)')
-    model = st.sidebar.selectbox(
-        'Select Model', ['RF_BISINDO_99'], disabled=True)
+    # 🔍 Auto-load all models in model folder
+    model_dir = os.path.join(os.path.dirname(__file__), 'model')
+    available_models = [f for f in os.listdir(model_dir) if f.endswith('.pkl')]
+
+    if not available_models:
+        st.error("❌ No model files found in the `model/` folder.")
+        return
+
+    st.sidebar.header('Choose a Model')
+    selected_model = st.sidebar.selectbox('Select Model', available_models)
+    model_path = os.path.join(model_dir, selected_model)
 
     st.sidebar.header('Webcam Feed Settings')
     brightness = st.sidebar.slider('Brightness', -100, 100, 0)
@@ -101,16 +100,10 @@ def main():
     saturation = st.sidebar.slider('Saturation', -100, 100, 0)
 
     st.sidebar.header('Model Settings')
-    min_detection_confidence = st.sidebar.slider(
-        'Min Detection Confidence', 0.0, 1.0, 0.5)
-    min_tracking_confidence = st.sidebar.slider(
-        'Min Tracking Confidence', 0.0, 1.0, 0.5)
+    min_detection_confidence = st.sidebar.slider('Min Detection Confidence', 0.0, 1.0, 0.5)
+    min_tracking_confidence = st.sidebar.slider('Min Tracking Confidence', 0.0, 1.0, 0.5)
 
     try:
-        model_path = f'model/{model.lower()}.pkl'
-        if not os.path.exists(model_path):
-            st.error(f"❌ Model file not found: {model_path}")
-            return
         clf = joblib.load(model_path)
     except Exception as e:
         st.error(f"❌ Error loading model: {str(e)}")
@@ -134,8 +127,7 @@ def main():
                         break
 
                     frame = cv2.flip(frame, 1)
-                    frame = cv2.convertScaleAbs(
-                        frame, alpha=1 + contrast/100, beta=brightness)
+                    frame = cv2.convertScaleAbs(frame, alpha=1 + contrast / 100, beta=brightness)
 
                     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
                     hsv[..., 1] = cv2.add(hsv[..., 1], saturation)
@@ -156,11 +148,9 @@ def main():
                                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                         for hand_landmark in hand_landmarks:
-                            mp_drawing.draw_landmarks(frame, hand_landmark,
-                                                      mp_hands.HAND_CONNECTIONS)
+                            mp_drawing.draw_landmarks(frame, hand_landmark, mp_hands.HAND_CONNECTIONS)
 
-                        prediction_text.text(
-                            f"Predicted Sign: {predicted_label}")
+                        prediction_text.text(f"Predicted Sign: {predicted_label}")
 
                     FRAME_WINDOW.image(frame, channels='BGR')
                 except Exception as e:
@@ -171,22 +161,6 @@ def main():
             st.session_state.camera.release()
             st.session_state.camera = None
             st.session_state.camera_initialized = False
-
-    with st.container():
-        st.markdown("---")
-        col1, col2, col3 = st.columns([1, 4, 1])
-        with col2:
-            st.markdown("### 👨‍💻 Project Information")
-            st.info("""
-            **Created by: Krisna Santosa**
-            
-            This is an original work for BISINDO (Indonesian Sign Language) Classification.
-            
-            If you want to modify or use this code, please provide proper attribution.
-            
-            I am very open to any feedback or suggestions. Feel free to contact me on [LinkedIn](https://www.linkedin.com/in/krisna-santosa/). One more, Let's collaborate!
-            """)
-        st.markdown("---")
 
 
 if __name__ == "__main__":
