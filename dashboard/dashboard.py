@@ -191,8 +191,6 @@ def main():
         col1, col2, col3 = st.columns([1, 4, 1])
         with col2:
             st.markdown("### 👨‍💻 Project Information")
-            st.info("""
-            bisindo mediapipe)
         st.markdown("---")
 
 
