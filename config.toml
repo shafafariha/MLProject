@@ -1,0 +1,5 @@
+[compatibility]
+# Use the desired Python version here
+# 3.10 is often a good choice for MediaPipe 0.10.x
+# You can also try 3.11 or 3.9 if 3.10 still has issues.
+pythonVersion = 3.10
