@@ -21,8 +21,8 @@ def is_cloud_environment():
 
 def extract_landmarks(image, min_detection_confidence=0.5, min_tracking_confidence=0.5):
     with mp_hands.Hands(static_image_mode=False, max_num_hands=2,
-                        min_detection_confidence=min_detection_confidence,
-                        min_tracking_confidence=min_tracking_confidence) as hands:
+                            min_detection_confidence=min_detection_confidence,
+                            min_tracking_confidence=min_tracking_confidence) as hands:
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = hands.process(image_rgb)
         if results.multi_hand_landmarks:
@@ -83,7 +83,11 @@ def main():
         st.warning("⚠️ You're running this app in Streamlit Cloud. Some features like camera access might be limited.")
 
     # 🔍 Auto-load all models in model folder
-    model_dir = os.path.join(os.path.dirname(__file__), 'model')
+    # CORRECTED PATH: Go up one directory from dashboard.py, then into 'model'
+    current_script_dir = os.path.dirname(__file__)
+    model_dir = os.path.join(current_script_dir, '..', 'model')
+    model_dir = os.path.abspath(model_dir) # Convert to absolute path for robustness
+
     available_models = [f for f in os.listdir(model_dir) if f.endswith('.pkl')]
 
     if not available_models:
