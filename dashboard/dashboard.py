@@ -122,6 +122,53 @@ def main():
         st.error(f"❌ Error loading model: {str(e)}")
         return
 
+    # --- START OF IMAGE UPLOAD SECTION ---
+    st.header("Image Upload")
+    st.write("Upload an image for classification (alternative to webcam)")
+
+    uploaded_file = st.file_uploader(
+        "Drag and drop file here",
+        type=["jpg", "jpeg", "png"],
+        accept_multiple_files=False, 
+        help="Limit 200MB per file • JPG, JPEG, PNG"
+    )
+
+    if uploaded_file is not None:
+        st.success("File uploaded successfully!")
+        # Convert uploaded file to OpenCV image format
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        uploaded_image = cv2.imdecode(file_bytes, 1) # 1 for color image
+
+        # Process the uploaded image
+        st.subheader("Classification Result from Uploaded Image:")
+        
+        landmarks_img, hand_landmarks_img = extract_landmarks(
+            uploaded_image,
+            min_detection_confidence=min_detection_confidence,
+            min_tracking_confidence=min_tracking_confidence
+        )
+
+        if landmarks_img:
+            landmarks_np_img = np.array(landmarks_img).reshape(1, -1)
+            prediction_img = clf.predict(landmarks_np_img)
+            predicted_label_img = prediction_img[0]
+
+            # Draw landmarks on the uploaded image
+            for hand_landmark in hand_landmarks_img:
+                mp_drawing.draw_landmarks(uploaded_image, hand_landmark, mp_hands.HAND_CONNECTIONS)
+
+            # Display the result on the image
+            cv2.putText(uploaded_image, f'Sign: {predicted_label_img}', (10, 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            
+            st.image(uploaded_image, caption=f"Uploaded Image with Prediction: {predicted_label_img}", channels='BGR', use_column_width=True)
+            st.write(f"**Predicted Sign (from image):** {predicted_label_img}")
+        else:
+            st.warning("No hands detected in the uploaded image.")
+
+    # --- END OF IMAGE UPLOAD SECTION ---
+
+
     run = st.checkbox('Start Webcam')
     FRAME_WINDOW = st.image([])
     prediction_text = st.empty()
@@ -174,17 +221,6 @@ def main():
             st.session_state.camera.release()
             st.session_state.camera = None
             st.session_state.camera_initialized = False
-
-    # Removed Project Information section as requested
-    # with st.container():
-    #     st.markdown("---")
-    #     col1, col2, col3 = st.columns([1, 4, 1])
-    #     with col2:
-    #         st.markdown("### 👨‍💻 Project Information")
-    #         st.markdown("""
-    #         Project for Machine Learning
-    #         """)
-    #     st.markdown("---")
 
 
 if __name__ == "__main__":
