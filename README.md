@@ -1,68 +1,68 @@
 # 🖐️ BISINDO Hand Sign Recognition & Classification
 
-Proyek Machine Learning untuk klasifikasi dan pengenalan alfabet **Bahasa Isyarat Indonesia (BISINDO)** (A–Z) secara *real-time* berbasis webcam maupun unggah gambar statis menggunakan **MediaPipe Hand Landmarks** dan algoritma **Random Forest Classifier**. Dilengkapi dengan antarmuka web interaktif berbasis **Streamlit**.
+A Machine Learning project for real-time and static image recognition of the **Indonesian Sign Language (BISINDO - Bahasa Isyarat Indonesia)** alphabet (A–Z) using **MediaPipe Hand Landmarks** and a **Random Forest Classifier**. Features an interactive web-based interface built with **Streamlit**.
 
 ---
 
-## 📌 Daftar Isi
-- [Ringkasan Proyek](#-ringkasan-proyek)
-- [Fitur Utama](#-fitur-utama)
-- [Alur Kerja (Pipeline)](#-alur-kerja-pipeline)
-- [Hasil dan Performa Model](#-hasil-dan-performa-model)
-- [Struktur Direktori](#-struktur-direktori)
-- [Teknologi yang Digunakan](#-teknologi-yang-digunakan)
-- [Panduan Instalasi dan Menjalankan Aplikasi](#-panduan-instalasi-dan-menjalankan-aplikasi)
-- [Penggunaan Dashboard](#-penggunaan-dashboard)
-- [Kontributor & Lisensi](#-kontributor--lisensi)
+## 📌 Table of Contents
+- [Project Overview](#-project-overview)
+- [Key Features](#-key-features)
+- [Workflow & Pipeline](#-workflow--pipeline)
+- [Model Performance & Evaluation](#-model-performance--evaluation)
+- [Directory Structure](#-directory-structure)
+- [Tech Stack](#-tech-stack)
+- [Installation & Setup](#-installation--setup)
+- [Dashboard Usage](#-dashboard-usage)
+- [License & Acknowledgments](#-license--acknowledgments)
 
 ---
 
-## 📖 Ringkasan Proyek
+## 📖 Project Overview
 
-Bahasa Isyarat Indonesia (BISINDO) merupakan media komunikasi alami yang digunakan oleh komunitas Tuli di Indonesia. Proyek ini bertujuan untuk menjembatani komunikasi melalui sistem penerjemah alfabet isyarat otomatis dengan pendekatan *Computer Vision* dan *Machine Learning*:
+Indonesian Sign Language (BISINDO) is the natural sign language used by the Deaf community across Indonesia. This project aims to bridge communication gaps by building an automated, accurate sign language alphabet translator using *Computer Vision* and *Machine Learning*:
 
-1. **Ekstraksi Fitur Geometris**: Menggunakan MediaPipe Hands untuk mendeteksi koordinat 3D dari sendi tangan ($x, y, z$).
-2. **Augmentasi Data**: Memperluas variasi citra dengan augmentasi rotasi, flip horizontal, dan penyesuaian kontras/pencahayaan.
-3. **Pemodelan Machine Learning**: Membandingkan 7 algoritma klasifikasi, di mana **Random Forest** menunjukkan performa terbaik dengan akurasi pengujian mencapai **~99.5%**.
-4. **Antarmuka Interaktif**: Dashboard Streamlit yang mendukung deteksi *live webcam* dan analisis citra statis.
-
----
-
-## ✨ Fitur Utama
-
-- 🔴 **Real-Time Webcam Detection**: Deteksi dan prediksi alfabet isyarat langsung dari kamera dengan anotasi visual *landmark* tangan.
-- 🖼️ **Image Upload Mode**: Alternatif pengujian dengan mengunggah gambar format `.jpg`, `.jpeg`, atau `.png`.
-- 🎛️ **Pengaturan Kamera & Filter**: Slider langsung untuk mengatur *Brightness*, *Contrast*, dan *Saturation* guna menyesuaikan kondisi pencahayaan ruangan.
-- ⚙️ **Konfigurasi Threshold Deteksi**: Pengaturan parameter *Min Detection Confidence* dan *Min Tracking Confidence* MediaPipe.
-- 👐 **Dukungan Dua Tangan**: Mampu mengekstrak hingga 2 tangan secara simultan (maksimal 126 fitur koordinat), cocok untuk huruf isyarat yang membutuhkan satu maupun dua tangan.
+1. **Geometric Feature Extraction**: MediaPipe Hands extracts 3D coordinates ($x, y, z$) from hand joints.
+2. **Data Augmentation**: Enhances image diversity using rotation, horizontal flipping, and contrast/lighting variations.
+3. **Machine Learning Modeling**: Compares 7 classification algorithms, with **Random Forest** achieving the highest performance at **~99.5% test accuracy**.
+4. **Interactive Dashboard**: A user-friendly Streamlit web app providing real-time webcam inference and static image analysis.
 
 ---
 
-## 🔄 Alur Kerja (Pipeline)
+## ✨ Key Features
+
+- 🔴 **Real-Time Webcam Detection**: Live sign detection with real-time skeleton overlay and predicted sign labels.
+- 🖼️ **Image Upload Mode**: Test single images in `.jpg`, `.jpeg`, or `.png` formats.
+- 🎛️ **Camera & Image Controls**: Interactive sidebar sliders for **Brightness**, **Contrast**, and **Saturation** adjustments to handle various lighting conditions.
+- ⚙️ **Detection Sensitivity Settings**: Configurable *Min Detection Confidence* and *Min Tracking Confidence* thresholds.
+- 👐 **Dual-Hand Support**: Extracts landmarks for up to 2 hands simultaneously (up to 126 feature dimensions), accommodating both single-handed and two-handed gestures.
+
+---
+
+## 🔄 Workflow & Pipeline
 
 ```
-[ Input Citra / Webcam Frame ]
+[ Input: Live Webcam / Image ]
              │
              ▼
-[ Ekstraksi Landmark MediaPipe ] ──► (21 titik sendi x 3 koordinat [x, y, z] per tangan)
+[ MediaPipe Hand Landmark Extraction ] ──► (21 hand joints × 3 coordinates [x, y, z] per hand)
              │
              ▼
-[ Vektor Fitur (126 Dimensi) ] ──► (Zero-padding jika hanya 1 tangan terdeteksi)
+[ Feature Vector Construction (126-D) ] ──► (Zero-padding applied if only 1 hand is detected)
              │
              ▼
-[ Random Forest Classifier ]   ──► (rf_bisindo_classifier_99.pkl)
+[ Random Forest Classifier ]           ──► (model/rf_bisindo_classifier_99.pkl)
              │
              ▼
-[ Hasil Prediksi Huruf (A-Z) & Visualisasi Skeleton ]
+[ Output: Predicted Letter (A–Z) & Landmark Visualization ]
 ```
 
 ---
 
-## 📊 Hasil dan Performa Model
+## 📊 Model Performance & Evaluation
 
-Dalam eksperimen yang dilakukan pada notebook [`ipynb/BISINDO 1.ipynb`](ipynb/BISINDO%201.ipynb), dilakukan evaluasi terhadap beberapa algoritma *machine learning*:
+Extensive benchmarking was performed across 7 classification algorithms in [`ipynb/BISINDO 1.ipynb`](ipynb/BISINDO%201.ipynb):
 
-| Algoritma | Validation Accuracy | Validation F1-Score | Test Accuracy | Test F1-Score |
+| Algorithm | Validation Accuracy | Validation F1-Score | Test Accuracy | Test F1-Score |
 | :--- | :---: | :---: | :---: | :---: |
 | **Random Forest** 🏆 | **99.54%** | **99.54%** | **99.45% - 99.59%** | **99.45% - 99.59%** |
 | **Gradient Boosting** | 98.89% | 98.90% | 98.71% | 98.71% |
@@ -72,61 +72,61 @@ Dalam eksperimen yang dilakukan pada notebook [`ipynb/BISINDO 1.ipynb`](ipynb/BI
 | **Logistic Regression** | 83.74% | 83.42% | 83.61% | 83.37% |
 | **Naive Bayes** | 41.32% | 31.50% | 41.71% | 31.42% |
 
-> Model final yang digunakan dalam sistem aplikasi adalah **Random Forest Classifier** (`model/rf_bisindo_classifier_99.pkl`).
+> The production model deployed in the dashboard is the **Random Forest Classifier** (`model/rf_bisindo_classifier_99.pkl`).
 
 ---
 
-## 📁 Struktur Direktori
+## 📁 Directory Structure
 
 ```plaintext
 MLProject/
-├── .devcontainer/             # Konfigurasi development container
+├── .devcontainer/             # Dev container configuration
 │   └── devcontainer.json
-├── .streamlit/                # Konfigurasi tema & server Streamlit
+├── .streamlit/                # Streamlit theme and server configuration
 │   └── config.toml
-├── dashboard/                 # Kode sumber aplikasi antarmuka Streamlit
-│   ├── dashboard.py           # Dashboard utama (Real-time Webcam + Upload Gambar)
-│   ├── local.py               # Versi khusus webcam lokal
-│   └── static.py              # Versi khusus klasifikasi gambar statis
-├── Datasets/                  # Dataset gambar dan file ekstraksi CSV
-│   ├── bisindo/               # Dataset citra asli per huruf (A - Z)
-│   ├── bisindo-augmented/     # Dataset citra hasil augmentasi
-│   ├── bisindo-features.csv   # Data fitur koordinat landmark lengkap
-│   ├── bisindo-train.csv      # Data latih (Train set)
-│   ├── bisindo-val.csv        # Data validasi (Validation set)
-│   └── bisindo-test.csv       # Data uji (Test set)
-├── ipynb/                     # Jupyter Notebooks eksplorasi & pelatihan model
-│   ├── BISINDO 1.ipynb        # Eksperimen perbandingan 7 algoritma ML
-│   └── BISINDO 2.ipynb        # Evaluasi detail & matriks konfusi Random Forest
-├── model/                     # Model ML terlatih (Pickle file)
+├── dashboard/                 # Streamlit web application source code
+│   ├── dashboard.py           # Main application (Webcam + Image Upload)
+│   ├── local.py               # Lightweight local webcam app
+│   └── static.py              # Static image classifier app
+├── Datasets/                  # Raw image datasets and extracted feature CSVs
+│   ├── bisindo/               # Original image dataset organized by letter (A–Z)
+│   ├── bisindo-augmented/     # Augmented image dataset
+│   ├── bisindo-features.csv   # Extracted 126-D MediaPipe landmark dataset
+│   ├── bisindo-train.csv      # Training split
+│   ├── bisindo-val.csv        # Validation split
+│   └── bisindo-test.csv       # Test split
+├── ipynb/                     # Jupyter Notebooks for exploration and training
+│   ├── BISINDO 1.ipynb        # Multi-model benchmarking & evaluation
+│   └── BISINDO 2.ipynb        # Random Forest detailed analysis & confusion matrix
+├── model/                     # Trained model artifacts (.pkl)
 │   └── rf_bisindo_classifier_99.pkl
-├── packages.txt               # Kebutuhan dependensi sistem Linux (Debian/Ubuntu)
-├── requirements.txt           # Dependensi pustaka Python
-└── README.md                  # Dokumentasi proyek
+├── packages.txt               # Linux system-level package dependencies
+├── requirements.txt           # Python library dependencies
+└── README.md                  # Project documentation
 ```
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+## 🛠️ Tech Stack
 
-- **Bahasa Pemrograman**: [Python 3.10+](https://www.python.org/)
+- **Language**: [Python 3.10+](https://www.python.org/)
 - **Computer Vision & Hand Tracking**: [MediaPipe](https://developers.google.com/mediapipe), [OpenCV](https://opencv.org/)
 - **Machine Learning & Modeling**: [Scikit-Learn](https://scikit-learn.org/), [Joblib](https://joblib.readthedocs.io/)
 - **Data Manipulation & Analysis**: [Pandas](https://pandas.pydata.org/), [NumPy](https://numpy.org/)
-- **Visualisasi & Evaluasi**: [Matplotlib](https://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/)
-- **Web Application & UI**: [Streamlit](https://streamlit.io/)
+- **Data Visualization**: [Matplotlib](https://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/)
+- **Web UI & Dashboard**: [Streamlit](https://streamlit.io/)
 
 ---
 
-## 🚀 Panduan Instalasi dan Menjalankan Aplikasi
+## 🚀 Installation & Setup
 
-### 1. Klon Repositori
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/shafafariha/MLProject.git
 cd MLProject
 ```
 
-### 2. Buat dan Aktifkan Virtual Environment (Disarankan)
+### 2. Create and Activate a Virtual Environment
 - **Windows**:
   ```powershell
   python -m venv venv
@@ -138,42 +138,42 @@ cd MLProject
   source venv/bin/activate
   ```
 
-### 3. Instalasi Dependensi
+### 3. Install Dependencies
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-> **Catatan untuk pengguna Linux**: Jika mengalami kendala modul grafis OpenCV (`libGL.so.1`), instal dependensi sistem:
+> **Note for Linux Users**: If OpenCV complains about missing graphics libraries (`libGL.so.1`), install the system packages specified in `packages.txt`:
 > ```bash
 > sudo apt-get update && sudo apt-get install -y libgl1-mesa-glx libxrender1 libxext6
 > ```
 
 ---
 
-## 🖥️ Penggunaan Dashboard
+## 🖥️ Dashboard Usage
 
-Jalankan dashboard Streamlit melalui terminal:
+Run the main Streamlit dashboard using:
 
 ```bash
 streamlit run dashboard/dashboard.py
 ```
 
-Setelah perintah dijalankan, buka browser di alamat `http://localhost:8501`.
+Once running, navigate to `http://localhost:8501` in your web browser.
 
-### Pilihan Mode di Dashboard:
-1. **Mode Upload Gambar**:
-   - Tarik atau pilih file gambar tangan yang membentuk alfabet BISINDO.
-   - Hasil deteksi landmark dan prediksi huruf akan langsung ditampilkan pada layar.
-2. **Mode Real-Time Webcam**:
-   - Centang kotak **"Start Webcam"**.
-   - Arahkan tangan Anda ke kamera. Pastikan pencahayaan cukup dan tangan terlihat jelas dalam bingkai kamera.
-   - Sesuaikan slider di sidebar jika perlu mengubah kecerahan atau tingkat sensitivitas deteksi.
+### Dashboard Modes:
+1. **Image Upload Mode**:
+   - Drag and drop or upload an image file containing hand sign gestures.
+   - The app will extract landmarks, render hand skeleton overlays, and display the predicted BISINDO letter.
+2. **Real-Time Webcam Mode**:
+   - Toggle the **"Start Webcam"** checkbox.
+   - Position your hands in front of the camera with adequate lighting.
+   - Adjust the brightness, contrast, or detection confidence sliders in the sidebar for optimal results.
 
 ---
 
-## 📄 Lisensi & Kredit
+## 📄 License & Acknowledgments
 
 - **Dataset**: Kaggle Dataset [achmadnoer/alfabet-bisindo](https://www.kaggle.com/datasets/achmadnoer/alfabet-bisindo)
-- Dikembangkan oleh [@shafafariha](https://github.com/shafafariha)
-- Proyek ini ditujukan untuk tujuan edukasi, penelitian, dan pengembangan teknologi aksesibilitas komunikasi bahasa isyarat.
+- **Author**: [@shafafariha](https://github.com/shafafariha)
+- Developed for educational, research, and assistive technology development in sign language accessibility.
